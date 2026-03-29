@@ -3,404 +3,594 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>自然雙單元闖關｜天空與水的移動</title>
+<title>自然雙單元互動式學習｜新版</title>
 <style>
   :root{
-    --bg:#eef6ff; --card:#ffffff; --ink:#20304a; --muted:#5e718c; --accent:#4f8cff; --accent2:#7ad3b0;
-    --good:#2f9e44; --bad:#d9485f; --gold:#f2c94c; --lav:#ede7ff; --peach:#fff1e6;
+    --bg1:#eef7ff;
+    --bg2:#f9fcff;
+    --card:#ffffff;
+    --ink:#1f2d3d;
+    --line:#d7e4f2;
+    --blue:#5b8def;
+    --green:#37b26c;
+    --gold:#f4b740;
+    --red:#e35d6a;
+    --purple:#7a67ee;
+    --shadow:0 10px 24px rgba(58,84,109,.12);
+    --hl:#fff59d;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;background:linear-gradient(180deg,#eef6ff,#f7fbff);color:var(--ink)}
-  .wrap{max-width:1100px;margin:0 auto;padding:18px}
-  .hero{background:linear-gradient(135deg,#6fa8ff,#8ed8ff);color:#fff;border-radius:28px;padding:24px;box-shadow:0 12px 28px rgba(60,110,180,.18)}
-  h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px)}
-  .sub{font-size:16px;line-height:1.7;opacity:.96}
-  .pillrow,.stepbar,.scoregrid,.cards,.modegrid,.rewardgrid{display:grid;gap:12px}
-  .pillrow{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:16px}
-  .pill{background:rgba(255,255,255,.18);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.28);padding:12px 14px;border-radius:18px;font-weight:700}
-  .section{margin-top:18px;background:var(--card);border-radius:24px;padding:18px;box-shadow:0 10px 24px rgba(40,60,90,.08)}
-  .section h2{margin:0 0 12px;font-size:24px}
-  .map{display:grid;grid-template-columns:1.2fr .9fr 1.3fr;gap:14px;align-items:center}
-  .bubble{border-radius:24px;padding:16px;min-height:120px}
-  .bubble.big{background:#ecf4ff;border:2px solid #cfe2ff}
-  .bubble.mid{background:#f4f0ff;border:2px solid #ddd2ff;text-align:center;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center}
-  .node{background:#fff;border:2px solid #d6e6ff;border-radius:18px;padding:12px 14px;margin:8px 0;font-weight:700}
-  .node small{display:block;color:var(--muted);font-weight:600;line-height:1.5;margin-top:4px}
-  .startbox{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
-  .btn{border:none;border-radius:18px;padding:14px 18px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(79,140,255,.22);background:var(--accent);color:#fff}
-  .btn.secondary{background:#fff;color:var(--accent);border:2px solid #cfe0ff;box-shadow:none}
-  .btn.good{background:var(--good)} .btn.warn{background:#ff9f43}.btn.bad{background:var(--bad)}
-  .stepbar{grid-template-columns:repeat(4,1fr)}
-  .step{background:#f5f8ff;border:2px solid #dce7ff;border-radius:16px;padding:12px;text-align:center;font-weight:800}
-  .step.active{background:#dceaff;border-color:#8db6ff}
-  .scoregrid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:10px}
-  .scorecard{background:#f8fbff;border:2px solid #e3eefc;border-radius:18px;padding:12px;text-align:center}
-  .scorecard .v{font-size:28px;font-weight:900;margin-top:4px}
-  .game{display:none}
-  .questionCard{background:#fff;border:2px solid #dbe8ff;border-radius:24px;padding:20px}
-  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .tag{padding:8px 12px;background:#f1f6ff;border-radius:999px;font-weight:800;color:#35507a}
-  .stem{font-size:20px;font-weight:800;line-height:1.7;margin:10px 0 14px}
-  .passage{background:#fcfdff;border:2px dashed #d9e8ff;border-radius:18px;padding:16px;line-height:1.9;font-size:17px;max-height:260px;overflow:auto}
-  .options{display:grid;gap:10px;margin-top:16px}
-  .option{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px solid #dfe9fb;border-radius:18px;background:#fff;cursor:pointer;font-weight:700}
-  .option:hover{background:#f7fbff}
-  .option.selected{border-color:#8db6ff;background:#eef5ff}
-  .option.correct{border-color:#8bd6a1;background:#ecfbf1}
-  .option.wrong{border-color:#f2a6b2;background:#fff1f4}
-  .feedback{margin-top:14px;padding:14px;border-radius:16px;font-weight:800;display:none;line-height:1.7}
-  .feedback.good{background:#ecfbf1;color:#246b36;display:block}
-  .feedback.bad{background:#fff1f4;color:#a61e34;display:block}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-  .cards{grid-template-columns:1.2fr .8fr;gap:16px}
-  .panel{background:#fcfdff;border:2px solid #e6eefb;border-radius:20px;padding:14px}
-  table{width:100%;border-collapse:collapse;margin-top:8px;background:#fff;border-radius:14px;overflow:hidden}
-  th,td{border-bottom:1px solid #edf2fa;padding:10px 12px;text-align:left;vertical-align:middle;font-size:14px}
-  th{background:#f6f9ff}
-  .center{text-align:center}
-  .bigScore{font-size:56px;font-weight:900;color:#355d9b}
-  .rewardgrid{grid-template-columns:repeat(5,1fr);margin-top:12px}
-  .chest{background:linear-gradient(180deg,#fff8d8,#ffe59b);border:2px solid #f0c85e;border-radius:20px;padding:16px;text-align:center;cursor:pointer;font-size:15px;font-weight:900;min-height:120px;display:flex;flex-direction:column;justify-content:center}
-  .chest.locked{opacity:.45;cursor:not-allowed}
-  .chest.opened{background:linear-gradient(180deg,#effff4,#cbf5d8);border-color:#72cf8f}
-  .tiny{font-size:13px;color:var(--muted);line-height:1.7}
+  body{
+    margin:0;
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:20px}
+  .hero{
+    background:linear-gradient(135deg,#dff0ff,#f3f9ff);
+    border:2px solid var(--line);
+    border-radius:28px;
+    padding:24px;
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+  }
+  h1{margin:0 0 10px;font-size:clamp(28px,4vw,42px)}
+  .sub{font-size:16px;line-height:1.9}
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+  .big-btn{
+    border:none;border-radius:26px;padding:20px 28px;
+    font-size:26px;font-weight:800;cursor:pointer;
+    color:#fff;box-shadow:var(--shadow);min-width:220px;
+    transition:transform .08s ease;
+  }
+  .big-btn:active,.small-btn:active,.option-btn:active{transform:translateY(2px)}
+  .blue{background:var(--blue)} .green{background:var(--green)}
+  .gold{background:var(--gold);color:#4b3600} .purple{background:var(--purple)}
+  .red{background:var(--red)}
+  .small-btn{
+    border:none;border-radius:14px;padding:10px 16px;
+    font-size:16px;font-weight:700;cursor:pointer;color:#fff;
+  }
+  .section{
+    display:none;
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:24px;
+    padding:20px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  .show{display:block}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .grid1{display:grid;grid-template-columns:1fr;gap:16px}
+  .card{
+    border:2px solid var(--line);
+    border-radius:20px;
+    padding:18px;
+    background:#fff;
+  }
+  .step{font-size:22px;font-weight:900;margin:4px 0 12px}
+  .pill{
+    display:inline-block;background:#eef6ff;border:1px solid #cfe2ff;border-radius:999px;
+    padding:6px 12px;font-weight:700;margin:0 8px 8px 0
+  }
+  .legend{font-size:14px;color:#5f7080}
+  .hl-area{font-size:18px;line-height:2}
+  .hl-on{cursor:text;user-select:text}
+  .table-wrap{overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{border:1px solid var(--line);padding:10px;vertical-align:top}
+  th{background:#f3f8ff}
+  .progress{
+    height:18px;background:#edf3fb;border-radius:999px;overflow:hidden;border:1px solid #d2deeb;margin:10px 0 16px
+  }
+  .bar{height:100%;width:0;background:linear-gradient(90deg,#67a3ff,#51d3a1)}
+  .passage{
+    border:2px solid #dfe9f4;border-radius:22px;padding:18px;margin-bottom:18px;background:#fcfeff
+  }
+  .passage h3{margin:0 0 10px;font-size:24px}
+  .passage-text{font-size:18px;line-height:2.05;margin-bottom:16px}
+  .q-block{border-top:1px dashed #d8e4ef;padding-top:12px;margin-top:12px}
+  .q-title{font-weight:900;font-size:18px;line-height:1.8}
+  .options{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+  .option-btn{
+    border:2px solid #d8e4ef;background:#fff;border-radius:16px;padding:12px 14px;
+    text-align:left;font-size:17px;cursor:pointer;font-weight:700;
+  }
+  .option-btn.selected{border-color:#87aef8;background:#eef5ff}
+  .option-btn.correct{border-color:#53b97d;background:#ecfff4}
+  .option-btn.wrong{border-color:#e77b87;background:#fff0f2}
+  .score-box{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px
+  }
+  .metric{
+    border:2px solid var(--line);border-radius:18px;padding:16px;text-align:center;background:#fff
+  }
+  .metric .num{font-size:28px;font-weight:900}
+  .metric .lab{font-size:14px;color:#647789}
+  .list-clean{margin:8px 0 0;padding-left:22px;line-height:1.9}
+  .reward-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  .chest{
+    border:none;border-radius:20px;padding:18px;background:linear-gradient(135deg,#ffd978,#f8b842);
+    box-shadow:var(--shadow);font-size:18px;font-weight:900;cursor:pointer;min-height:120px;
+  }
+  .chest.opened{background:linear-gradient(135deg,#e8f5ff,#cfe4ff)}
+  .wrong-table td,.wrong-table th{font-size:15px}
+  .footer-note{font-size:14px;color:#647789;line-height:1.8}
   .hidden{display:none}
-  .modegrid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-  .mode{background:#f8fbff;border:2px solid #dce7ff;border-radius:20px;padding:14px}
-  .mode h3{margin:0 0 6px}
-  .footer{margin:18px 0 30px;color:#6b7f9c;font-size:13px;text-align:center}
-  @media (max-width: 900px){
-    .map,.cards{grid-template-columns:1fr}
-    .startbox{grid-template-columns:1fr}
-    .rewardgrid{grid-template-columns:repeat(2,1fr)}
+  .center{text-align:center}
+  @media (max-width:900px){
+    .grid2{grid-template-columns:1fr}
+    .score-box{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .reward-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .big-btn{width:100%}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hero">
-    <h1>🌙💧 自然雙單元闖關</h1>
-    <div class="sub">把「白天和夜晚的天空」＋「水的移動」結合成短回合、圖像化、立即回饋的練習。適合視覺優勢、非語文推理佳、聽覺工作記憶較弱、易分心但理解力不差的孩子。</div>
-    <div class="pillrow">
-      <div class="pill">👀 一次只做 1 題，畫面乾淨</div>
-      <div class="pill">🧭 步驟固定：看圖卡 → 選答案 → 立即回饋</div>
-      <div class="pill">✨ 可闖關、低挫折，不扣命</div>
-      <div class="pill">🎁 滿 80 / 90 / 100 分開寶箱</div>
+    <h1>自然雙單元互動式學習</h1>
+    <div class="sub">
+      主題：<b>白天和夜晚的天空</b>＋<b>水的移動</b><br>
+      設計重點：大按鈕、短步驟、圖像化整理、立即回饋、低挫折、適合視覺優勢與啟動較慢的孩子。<br>
+      測驗模式：每回合亂數抽出 <b>4 篇閱讀素養題</b>，每篇約 500 字、各含 <b>5 題選擇題</b>，全卷共 20 題，滿分 100。
     </div>
+
+    <div class="toolbar">
+      <button class="big-btn blue" onclick="showSection('summarySection')">重點整理</button>
+      <button class="big-btn green" onclick="showSection('reviewSection')">考前複習</button>
+      <button class="big-btn gold" onclick="startQuiz()">開始測驗</button>
+    </div>
+
+    <div class="toolbar">
+      <button class="small-btn purple" onclick="toggleHighlighter()">螢光筆：<span id="hlState">關</span></button>
+      <button class="small-btn red" onclick="clearHighlights()">清除劃記</button>
+      <button class="small-btn blue" onclick="goHome()">回首頁</button>
+    </div>
+    <div class="legend">螢光筆使用方式：先按「螢光筆：開」，再用滑鼠或手指選取文字即可劃記。</div>
   </div>
 
-  <div class="section">
-    <h2>一張圖先看懂兩個單元</h2>
-    <div class="map">
-      <div class="bubble big">
-        <div class="node">☀️ 白天和夜晚的天空<small>太陽位置、影子方向與長短、月亮位置、月相變化</small></div>
-        <div class="node">🔎 觀察重點<small>時間、方位、高低、連續紀錄</small></div>
+  <section id="homeSection" class="section show">
+    <div class="step">學習步驟</div>
+    <div class="grid2">
+      <div class="card">
+        <span class="pill">第 1 步</span>
+        <div class="hl-area">先看 <b>重點整理</b>，用圖表把兩單元的核心觀念放進腦中。</div>
       </div>
-      <div class="bubble mid">觀察 → 記錄 → 比較 → 推理</div>
-      <div class="bubble big">
-        <div class="node">💧 水的移動<small>毛細、虹吸、連通管、生活應用</small></div>
-        <div class="node">🧠 作答線索<small>看條件、找變因、配對原理、連結生活</small></div>
+      <div class="card">
+        <span class="pill">第 2 步</span>
+        <div class="hl-area">再看 <b>考前複習</b>，把常考觀念、易錯點、判斷技巧快速掃過一次。</div>
       </div>
-    </div>
-  </div>
-
-  <div class="section" id="homeSection">
-    <div class="startbox">
-      <div>
-        <h2>開始方式</h2>
-        <div class="modegrid">
-          <div class="mode"><h3>第 1 關 暖身</h3><div class="tiny">真假題 2 題｜快速進入狀態</div></div>
-          <div class="mode"><h3>第 2 關 配對</h3><div class="tiny">配對/分類題 2 題｜抓概念差異</div></div>
-          <div class="mode"><h3>第 3 關 應用</h3><div class="tiny">填空/情境題 3 題｜生活連結</div></div>
-          <div class="mode"><h3>第 4 關 閱讀</h3><div class="tiny">閱讀素養題 3 題｜短文推理</div></div>
-        </div>
-        <div class="tiny" style="margin-top:10px">每回合共 10 題，每題 10 分，滿分 100。題目會從題庫隨機抽出，不重複。</div>
+      <div class="card">
+        <span class="pill">第 3 步</span>
+        <div class="hl-area">最後做 <b>閱讀素養測驗</b>，一次 4 篇文章，共 20 題，做完立刻知道分數與錯題。</div>
       </div>
-      <div>
-        <button class="btn" onclick="startGame()">開始闖關</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="game" id="gameSection">
-    <div class="section">
-      <div class="stepbar" id="stepBar"></div>
-      <div class="scoregrid">
-        <div class="scorecard"><div>目前分數</div><div class="v" id="liveScore">0</div></div>
-        <div class="scorecard"><div>目前題號</div><div class="v" id="liveQ">1 / 10</div></div>
-        <div class="scorecard"><div>答對題數</div><div class="v" id="liveCorrect">0</div></div>
-        <div class="scorecard"><div>錯題數</div><div class="v" id="liveWrong">0</div></div>
-      </div>
-    </div>
-
-    <div class="questionCard">
-      <div class="meta">
-        <div class="tag" id="modeTag">暖身</div>
-        <div class="tag" id="unitTag">單元整合</div>
-        <div class="tag" id="supportTag">看關鍵字作答</div>
-      </div>
-      <div class="stem" id="questionStem"></div>
-      <div class="passage" id="questionPassage"></div>
-      <div class="options" id="optionsBox"></div>
-      <div class="feedback" id="feedbackBox"></div>
-      <div class="actions">
-        <button class="btn secondary" onclick="showHint()">提示</button>
-        <button class="btn" id="submitBtn" onclick="submitAnswer()">送出答案</button>
-        <button class="btn good hidden" id="nextBtn" onclick="nextQuestion()">下一題</button>
-      </div>
-    </div>
-
-    <div class="section cards">
-      <div class="panel">
-        <h2>錯題表</h2>
-        <table>
-          <thead><tr><th class="center" style="width:68px">題號</th><th>題目摘要</th><th style="width:100px">作答</th><th style="width:110px">正解</th></tr></thead>
-          <tbody id="wrongTableBody"><tr><td colspan="4" class="center tiny">目前還沒有錯題，繼續保持。</td></tr></tbody>
-        </table>
-      </div>
-      <div class="panel">
-        <h2>分數表</h2>
-        <table>
-          <thead><tr><th>類型</th><th class="center">出題</th><th class="center">答對</th></tr></thead>
-          <tbody id="scoreTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="section hidden" id="resultSection">
-    <h2>闖關結果</h2>
-    <div class="cards">
-      <div class="panel center">
-        <div class="bigScore" id="finalScore">100</div>
-        <div id="finalSummary" style="font-weight:800;font-size:18px"></div>
-        <div class="tiny" style="margin-top:10px">80 分可開 1 個寶箱，90 分可開 2 個寶箱，100 分可開 3 個寶箱。</div>
-        <div class="actions" style="justify-content:center;margin-top:16px">
-          <button class="btn" onclick="resetGame()">再玩一次</button>
+      <div class="card">
+        <span class="pill">獎勵規則</span>
+        <div class="hl-area">
+          80 分以上：開 1 個寶箱<br>
+          90 分以上：開 2 個寶箱<br>
+          100 分：開 3 個寶箱
         </div>
       </div>
-      <div class="panel">
-        <h2>獎勵寶箱</h2>
-        <div class="tiny">每回合會隨機排列 5 個寶箱，其中 1 個是「水晶玩具」，其他 4 個是「水晶點數 1 點」。</div>
-        <div class="rewardgrid" id="rewardGrid"></div>
-        <div id="rewardResult" class="feedback good hidden" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="summarySection" class="section">
+    <div class="step">重點整理</div>
+    <div class="grid2">
+      <div class="card hl-area">
+        <h3>單元一｜白天和夜晚的天空</h3>
+        <ul class="list-clean">
+          <li>白天常看到太陽、雲；夜晚較容易看到月亮、星星。</li>
+          <li>太陽在一天中的位置會改變，可用 <b>方位</b> 和 <b>高低</b> 描述。</li>
+          <li>太陽位置改變時，<b>影子的方向與長短</b> 也會跟著改變。</li>
+          <li>月亮的位置會變，<b>形狀（月相）</b> 也會變。</li>
+          <li>觀察天空時，要記錄：<b>日期、時間、地點、方位、看到的景象</b>。</li>
+        </ul>
+      </div>
+      <div class="card hl-area">
+        <h3>單元二｜水的移動</h3>
+        <ul class="list-clean">
+          <li><b>毛細現象</b>：水沿著細小縫隙或吸水材料移動，例如紙巾、棉線、毛巾吸水。</li>
+          <li><b>虹吸現象</b>：水透過管子，從較高處流向較低處，例如魚缸換水。</li>
+          <li><b>連通管原理</b>：底部相通、裝同種液體時，液面最後會趨近相同高度。</li>
+          <li>看實驗題時要抓：<b>條件、變因、結果、推論</b>。</li>
+        </ul>
       </div>
     </div>
-  </div>
 
-  <div class="footer">本頁為單檔 index.html，可直接上傳到 GitHub Pages 使用。</div>
+    <div class="card table-wrap hl-area">
+      <h3>整合圖表｜兩單元一起看</h3>
+      <table>
+        <tr>
+          <th>學習主線</th>
+          <th>天空單元</th>
+          <th>水的移動單元</th>
+        </tr>
+        <tr>
+          <td>先觀察</td>
+          <td>太陽、月亮、影子、月相</td>
+          <td>紙巾吸水、棉線引水、魚缸排水、U 形管水面</td>
+        </tr>
+        <tr>
+          <td>再記錄</td>
+          <td>日期、時間、方位、高低、形狀</td>
+          <td>材料、裝置、出水口高低、水面變化</td>
+        </tr>
+        <tr>
+          <td>找規律</td>
+          <td>太陽位置變 → 影子變；月亮位置與形狀會變</td>
+          <td>毛細、虹吸、連通管各有不同條件</td>
+        </tr>
+        <tr>
+          <td>做推論</td>
+          <td>哪個說法正確？哪個觀察方法比較好？</td>
+          <td>哪種現象？為何成功？哪個條件是關鍵？</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="reviewSection" class="section">
+    <div class="step">考前複習</div>
+    <div class="grid2">
+      <div class="card hl-area">
+        <h3>考前一定要會</h3>
+        <ul class="list-clean">
+          <li>中午太陽位置較高，影子通常較短。</li>
+          <li>早上與下午影子方向不同，代表太陽位置改變。</li>
+          <li>月亮不一定只在晚上看到，且月相會變化。</li>
+          <li>紙巾、布、棉線吸水，多半和毛細現象有關。</li>
+          <li>魚缸用管子把水引到低處，是虹吸現象。</li>
+          <li>U 形管或透明水平水管，多和連通管原理有關。</li>
+        </ul>
+      </div>
+      <div class="card hl-area">
+        <h3>最常錯的地方</h3>
+        <ul class="list-clean">
+          <li>把「水有移動」就全部當同一種現象。</li>
+          <li>只記東升西落，卻不會判斷影子方向與長短。</li>
+          <li>以為白天一定都看得到太陽、晚上一定都看得到月亮。</li>
+          <li>沒有先看題目條件，就急著選答案。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card hl-area">
+      <h3>答題技巧</h3>
+      <span class="pill">先看題目問什麼</span>
+      <span class="pill">圈出關鍵字</span>
+      <span class="pill">排除最明顯錯誤</span>
+      <span class="pill">再選最合理答案</span>
+      <span class="pill">不急，先看清楚</span>
+    </div>
+  </section>
+
+  <section id="quizSection" class="section">
+    <div class="step">閱讀素養測驗</div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <div id="quizInfo" class="legend">本回合共 4 篇文章 × 每篇 5 題＝20 題。</div>
+    <div id="quizContainer"></div>
+    <div class="toolbar">
+      <button class="big-btn green" onclick="submitQuiz()">交卷看成績</button>
+      <button class="big-btn purple" onclick="startQuiz()">重新抽題</button>
+    </div>
+  </section>
+
+  <section id="resultSection" class="section">
+    <div class="step">成績與錯題表</div>
+    <div class="score-box">
+      <div class="metric"><div id="scoreNum" class="num">0</div><div class="lab">分數 / 100</div></div>
+      <div class="metric"><div id="correctNum" class="num">0</div><div class="lab">答對題數</div></div>
+      <div class="metric"><div id="wrongNum" class="num">0</div><div class="lab">答錯題數</div></div>
+      <div class="metric"><div id="rewardNum" class="num">0</div><div class="lab">可開寶箱數</div></div>
+    </div>
+
+    <div class="card">
+      <h3>錯題表</h3>
+      <div class="table-wrap">
+        <table class="wrong-table">
+          <thead>
+            <tr><th>題號</th><th>題目</th><th>你的答案</th><th>正確答案</th><th>解析</th></tr>
+          </thead>
+          <tbody id="wrongTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>寶箱獎勵</h3>
+      <div class="legend">規則：80 分以上開 1 個，90 分以上開 2 個，100 分開 3 個。5 個寶箱中，1 個是「水晶玩具」，另外 4 個是「水晶點數 1 點」。</div>
+      <div id="rewardGrid" class="reward-grid" style="margin-top:12px;"></div>
+      <div id="rewardResult" class="hl-area" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <div class="footer-note">
+    這份設計是新版文字檔，可直接存成 <b>index.html</b> 上傳到 GitHub Pages 使用。
+  </div>
 </div>
 
 <script>
-const banks = {
-  tf: [
-    {mode:'暖身', unit:'天空', stem:'判斷正誤：太陽一天中的位置會改變，所以影子的方向和長短也可能改變。', options:['正確','錯誤'], answer:0, hint:'想想早上、中午、下午影子有沒有一樣。', explain:'這是正確的。太陽位置改變，影子方向與長短也會跟著變。'},
-    {mode:'暖身', unit:'天空', stem:'判斷正誤：月亮每天看起來都完全一樣。', options:['正確','錯誤'], answer:1, hint:'回想月相：彎月、半月、滿月。', explain:'這是錯誤的。月亮外形會變，叫做月相變化。'},
-    {mode:'暖身', unit:'水的移動', stem:'判斷正誤：毛巾吸水和毛細現象有關。', options:['正確','錯誤'], answer:0, hint:'看材料：布、紙、棉線都常見。', explain:'正確。毛巾吸水屬於水沿細小空隙移動。'},
-    {mode:'暖身', unit:'水的移動', stem:'判斷正誤：連通管中，同一種液體最後液面通常會趨近一樣高。', options:['正確','錯誤'], answer:0, hint:'關鍵字：底部相通、同種液體。', explain:'正確。這就是連通管的核心特性。'},
-    {mode:'暖身', unit:'單元整合', stem:'判斷正誤：觀察自然現象時，只看一次就一定能找到規律。', options:['正確','錯誤'], answer:1, hint:'想想月相或影子，需要連續觀察嗎？', explain:'錯誤。很多規律需要在不同時間持續觀察才能發現。'},
-    {mode:'暖身', unit:'水的移動', stem:'判斷正誤：魚缸把水用管子引到低處，屬於虹吸現象。', options:['正確','錯誤'], answer:0, hint:'關鍵線索是「管子」和「高到低」。', explain:'正確。這是虹吸現象的典型例子。'}
-  ],
-  match: [
-    {mode:'配對', unit:'水的移動', stem:'哪一個例子最適合配對到「毛細現象」？', options:['魚缸排水','毛巾吸汗','透明水平水管','影子變短'], answer:1, hint:'材料常是紙、布、棉線。', explain:'毛巾吸汗屬於毛細現象。'},
-    {mode:'配對', unit:'水的移動', stem:'哪一個例子最適合配對到「虹吸現象」？', options:['紙巾吸果汁','白花吸色水','用管子把水引到低桶','月亮外形改變'], answer:2, hint:'關鍵是管子與高低差。', explain:'用管子把高處的水引到低處是虹吸。'},
-    {mode:'配對', unit:'水的移動', stem:'哪一個例子最適合配對到「連通管原理」？', options:['U形水管兩邊液面趨近一樣高','抹布吸水','魚缸換水','白天看太陽'], answer:0, hint:'關鍵是底部相通。', explain:'U 形水管是連通管原理。'},
-    {mode:'配對', unit:'天空', stem:'哪一個關鍵字最適合配對到「描述天空位置」？', options:['方位和高低','聞味道','重量和速度','聲音大小'], answer:0, hint:'回答位置常用東西南北與高低。', explain:'描述位置要用方位和高低。'},
-    {mode:'配對', unit:'單元整合', stem:'哪一個做法最符合「觀察 → 記錄 → 比較 → 推理」？', options:['直接猜答案','先記錄不同時間，再找規律','只抄同學的答案','看一次就結束'], answer:1, hint:'科學學習重視證據。', explain:'先記錄再比較，最符合科學探究步驟。'},
-    {mode:'配對', unit:'天空', stem:'哪一個現象最適合配對到「月相變化」？', options:['彎月、半月、滿月','影子縮短','魚缸排水','抹布吸水'], answer:0, hint:'想月亮外形。', explain:'彎月、半月、滿月屬於月相變化。'}
-  ],
-  fill: [
-    {mode:'應用', unit:'天空', stem:'填空概念：中午時太陽位置較____，所以影子通常較____。', options:['低；長','高；短','西；亮','東；粗'], answer:1, hint:'回想操場影子觀察。', explain:'中午太陽較高，所以影子較短。'},
-    {mode:'應用', unit:'天空', stem:'傍晚觀察月亮，想讓紀錄更清楚，最值得先寫下的是____。', options:['零食口味','日期、時間、方位','鞋子顏色','跑步速度'], answer:1, hint:'觀察紀錄要能重現情境。', explain:'日期、時間、方位能幫助理解月亮位置與變化。'},
-    {mode:'應用', unit:'水的移動', stem:'如果想讓虹吸更容易成功，最重要的條件之一是____。', options:['管內先有水、出水端較低','容器顏色一樣','天氣晴朗','桌面夠大'], answer:0, hint:'看「高到低」與「管內有沒有空氣」。', explain:'虹吸常需要管內先有水，且出水端低於原容器。'},
-    {mode:'應用', unit:'水的移動', stem:'白色花插進有色水後花瓣變色，最能說明植物體內有____。', options:['影子','細小通道運水','小燈泡','磁鐵'], answer:1, hint:'不是花在變魔術。', explain:'花瓣變色表示有色水經細小通道被運送到花瓣。'},
-    {mode:'應用', unit:'單元整合', stem:'想找出規律，最好的方法是____。', options:['只看一次就猜','不同時間觀察並記錄','直接背答案','挑最簡單的題'], answer:1, hint:'規律通常不是憑直覺。', explain:'不同時間觀察並記錄，最容易發現規律。'},
-    {mode:'應用', unit:'水的移動', stem:'透明 U 形水管的兩端液面最後差不多一樣高，這主要是因為它們____。', options:['顏色一樣','底部相通','放在桌上','由老師拿著'], answer:1, hint:'想核心條件。', explain:'連通管的關鍵是底部相通。'}
-  ],
-  reading: [
-    {mode:'閱讀', unit:'天空', stem:'讀完短文後，選出最合理的答案。',
-      passage:'星期四早上，四年級的同學到操場觀察天空。早上八點時，太陽在東方偏南，影子又長又斜；中午十二點，太陽位置變高，影子變得很短；下午四點再看，太陽偏向西方，影子又拉長，而且方向和早上不同。老師請大家不要急著背答案，而是把三次觀察都畫在表格裡，再比較一天中的變化。小杰本來只記得「早上影子長、中午影子短」，後來才知道重點不是死背，而是要看出影子為什麼改變。',
-      options:['因為風變大，影子才變短','太陽位置改變，影子跟著改變','影子長短和太陽無關','中午影子最長'], answer:1, hint:'先抓主角：太陽位置。', explain:'這段短文的核心是太陽位置改變，影子方向與長短也跟著改變。'},
-    {mode:'閱讀', unit:'天空', stem:'讀完短文後，選出最合理的答案。',
-      passage:'小妤連續一週在傍晚觀察月亮。她發現月亮有時像彎彎的小船，有時像半圓，有時又比較接近圓形，而且出現的位置也不是每天都一樣。老師看了她的紀錄後說，這樣的筆記很有價值，因為它不只是看見月亮，而是把看到的現象留下來，才能找到變化的規律。小妤也因此修正了自己原本的想法：月亮不一定只在深夜才會看見，而且每天看起來也不完全一樣。',
-      options:['月亮每天都一樣','月亮只在深夜出現','月亮位置和外形都可能變化','只要看一次就能知道月相規律'], answer:2, hint:'注意「有時…有時…」這種關鍵字。', explain:'短文明確說明月亮位置和外形都可能改變。'},
-    {mode:'閱讀', unit:'水的移動', stem:'讀完短文後，選出最合理的答案。',
-      passage:'老師把紙巾的一角放進有色水裡，不久後，顏色沿著紙巾慢慢往上移動。接著老師又請同學用毛巾擦乾桌面上的水，大家發現毛巾也能很快把水吸走。老師說，這些現象都有一個共同點：水會沿著細小的空隙移動。平常看到衛生紙吸果汁、布條吸水、棉線變濕，其實都和同一類原理有關。',
-      options:['這是在說月相變化','這是在說毛細現象','這是在說連通管','這是在說影子變短'], answer:1, hint:'材料關鍵字：紙、布、棉線。', explain:'這些例子都屬於毛細現象。'},
-    {mode:'閱讀', unit:'水的移動', stem:'讀完短文後，選出最合理的答案。',
-      passage:'阿哲幫爸爸清理魚缸時，看到爸爸先把透明軟管裝滿水，再把一端放進魚缸，另一端垂到比較低的水桶。過一會兒，魚缸裡的水就慢慢流到桶子裡。阿哲第一次自己做時失敗了，後來才發現管內留了空氣，而且出水端不夠低。調整後，水才順利流動。',
-      options:['只要有管子就一定成功','這種現象和高低差無關','虹吸需要符合條件才容易成功','魚缸排水屬於連通管'], answer:2, hint:'看失敗原因。', explain:'虹吸要注意條件，例如管內先有水、出水端較低。'},
-    {mode:'閱讀', unit:'水的移動', stem:'讀完短文後，選出最合理的答案。',
-      passage:'老師拿出一個透明 U 形玻璃管，兩邊都裝了水。剛開始時左邊水面比較高，右邊比較低，可是過了一會兒，兩邊水面慢慢變成差不多一樣高。老師提醒大家，重點不是玻璃管有沒有彎，而是兩邊底部相通，裡面又裝的是同一種液體。有人想到工地上的透明水平水管，原來也是應用類似原理。',
-      options:['毛細現象','虹吸現象','連通管原理','月相紀錄'], answer:2, hint:'底部相通是關鍵。', explain:'這是在說連通管原理。'},
-    {mode:'閱讀', unit:'單元整合', stem:'讀完短文後，選出最合理的答案。',
-      passage:'老師說，不論是觀察太陽影子、記錄月相，還是比較紙巾吸水和魚缸排水，都不能只背名詞。真正重要的是先看條件，再做記錄，接著比較不同情況，最後才推理原因。小安發現，當自己按照這個順序做題時，比較不會慌，也比較不容易因為怕錯就停住不動。',
-      options:['自然課只要背名詞','先看條件、記錄、比較、推理比較能找到答案','做題要越快越好','怕錯時最好直接放棄'], answer:1, hint:'抓主句。', explain:'短文強調觀察、記錄、比較、推理的作答流程。'}
-  ]
-};
+const readingBank = [
+{
+ title:"題組一｜操場上的一天",
+ passage:`星期三，四年二班到操場做整合觀察活動。老師沒有只教天空，也沒有只教水，而是希望大家練習同一種科學能力：先觀察，再記錄，再推論。早上八點，小宇先觀察太陽，發現太陽在東方偏南，影子很長。到了中午，太陽位置升高，影子變短。下午四點時，太陽偏到西方，影子又變長，而且方向和早上不同。接著老師在走廊上做另一個實驗：把紙巾一端放進有色水裡，過一會兒，色水沿著紙巾慢慢往上爬。老師問大家，天空中的變化和水的移動，雖然內容不同，但學習方法是不是很像？都要仔細看，不能只憑感覺。小宇回家後把這一天的活動畫成圖，一邊是太陽與影子的變化，一邊是紙巾吸水的過程。他發現自己如果先用圖像整理，再讀題目，就比較不會慌，也比較知道該抓什麼重點。`,
+ questions:[
+  {q:"這篇文章最主要在強調哪一件事？", options:["自然課只要背答案","天空和水的移動都要靠觀察、記錄與推論","紙巾比太陽重要","只要會畫圖就能答對"], answer:1, explain:"本文把兩單元用同一條學習主線連起來：觀察、記錄、推論。"},
+  {q:"中午影子變短，最可能與哪個原因有關？", options:["太陽位置較高","紙巾吸水變快","月亮變亮","雲變白"], answer:0, explain:"中午太陽較高，影子通常較短。"},
+  {q:"色水沿著紙巾往上移動，屬於哪種現象？", options:["虹吸現象","月相變化","毛細現象","連通管"], answer:2, explain:"紙巾、布、棉線吸水都和毛細現象有關。"},
+  {q:"老師把天空和紙巾吸水放在同一天活動，最主要想讓學生了解什麼？", options:["兩單元其實沒有關係","不同主題也可用相同科學方法學習","紙巾可以代替影子","天空只要早上看一次"], answer:1, explain:"兩個單元內容不同，但都要靠觀察、記錄、比較與推論。"},
+  {q:"小宇用圖像整理後比較不慌，最符合哪種學習策略？", options:["先亂猜再改答案","把資訊視覺化，幫助理解與作答","只抄同學答案","把題目跳過"], answer:1, explain:"把重點轉成圖像，對視覺優勢學習者特別有幫助。"}
+ ]
+},
+{
+ title:"題組二｜陽台上的月亮與棉線橋",
+ passage:`小妤每天傍晚都會到陽台等媽媽回家。有一天，她發現天空還亮亮的，月亮卻已經出現了。她原本以為月亮只有晚上才看得到，於是決定連續一週做觀察。她每天在同一時間記下月亮的位置和形狀，發現月亮不是每天都一樣，有時像彎彎的小船，有時像半圓，有時又更接近圓形。週末時，媽媽陪她做另一個實驗：把兩個杯子放在桌上，用棉線把左邊裝有色水的杯子和右邊空杯連起來。隔了一段時間，棉線先變濕，右邊的杯子也慢慢出現有色水。媽媽問她，這個現象和觀察月亮有什麼共同點？小妤想了想後說，兩者都不能只看一下就下結論。月亮的形狀要連續看，棉線引水也要等一段時間，才看得出規律和結果。她覺得自然課最神奇的地方，就是很多答案不是老師直接給，而是自己慢慢看出來的。`,
+ questions:[
+  {q:"小妤原本錯誤的想法是什麼？", options:["月亮每天都從西方出現","月亮只有晚上才看得到","月亮比太陽小很多","月亮不會移動"], answer:1, explain:"本文明確提到她原以為月亮只有晚上才看得到。"},
+  {q:"月亮有時像小船、有時像半圓，表示什麼？", options:["月亮會發光","月相會變化","星星比較少","雲很多"], answer:1, explain:"月亮外形改變，就是月相變化。"},
+  {q:"棉線把色水慢慢帶到另一杯，最主要屬於哪一種現象？", options:["毛細現象","虹吸現象","連通管","日夜變化"], answer:0, explain:"棉線、布、紙巾吸水多與毛細現象相關。"},
+  {q:"媽媽問兩個活動的共同點，最合理的答案是什麼？", options:["都只能晚上做","都要連續觀察一段時間，才能看出結果","都和太陽有關","都不需要記錄"], answer:1, explain:"兩者都需要時間與持續觀察，不能只看一下。"},
+  {q:"這篇文章最適合提醒學生哪種學習態度？", options:["怕錯就不要答","先觀察，再下結論","只看老師示範就好","記住一個例子就夠了"], answer:1, explain:"文章強調不能只憑印象，要靠連續觀察和記錄。"}
+ ]
+},
+{
+ title:"題組三｜魚缸換水與影子遊戲",
+ passage:`體育課時，老師帶大家玩踩影子。早上第一節課，大家都覺得很容易踩到別人的影子，因為影子長長的；到了中午，影子變短，大家就比較難踩到。下午時，影子又慢慢變長。放學回家後，小承看到爸爸正在幫魚缸換水。爸爸把透明軟管的一端放進魚缸，另一端垂到比較低的水桶裡，不久後水就沿著管子流進水桶。小承想到早上的自然課，突然發現這兩件事其實都和「條件改變，結果跟著改變」有關：太陽位置不同，影子長短就不同；出水口高低與管內條件合適時，水才會順利流動。爸爸故意把水桶抬高，結果水流就停止了。小承笑著說，這就像把題目的關鍵條件拿掉，答案也會不一樣。爸爸聽了很高興，因為小承不只是看到現象，而是已經開始把生活中的事情和課堂上的原理連在一起。`,
+ questions:[
+  {q:"早上比較容易踩到影子，主要因為什麼？", options:["影子較長","鞋子較輕","風較小","操場較大"], answer:0, explain:"早上太陽位置較低，影子通常較長。"},
+  {q:"魚缸的水沿著管子流到較低水桶，屬於哪種現象？", options:["毛細現象","連通管","虹吸現象","月相變化"], answer:2, explain:"利用管子把較高處的水引到較低處，是虹吸現象。"},
+  {q:"爸爸把水桶抬高後水流停止，最能說明什麼？", options:["顏色不同會影響水流","條件改變，結果也會改變","水只在晚上流動","魚缸不想換水"], answer:1, explain:"虹吸需要特定條件，拿掉關鍵條件，結果就改變。"},
+  {q:"小承說像是把題目的關鍵條件拿掉，表示他學到什麼？", options:["作答前要先抓條件","所有題目都很難","水和影子沒有關係","只要猜就會對"], answer:0, explain:"他已能從生活現象反推到題目作答策略。"},
+  {q:"這篇文章最主要訓練哪種能力？", options:["把生活現象和科學原理連結","只記名詞不懂意思","比較誰跑得快","畫魚缸"], answer:0, explain:"全文都在練習從生活中看懂原理。"}
+ ]
+},
+{
+ title:"題組四｜月相牆與 U 形水管",
+ passage:`四年一班在教室後面做了一面月相牆，每天由值日生在固定時間記錄月亮的形狀和大約位置。剛開始有些同學覺得很麻煩，認為月亮每天看起來都差不多。但兩週後，大家把紀錄排在一起，發現月亮的外形不是亂變，而是有一定順序。就在同一天，老師又拿出一個 U 形透明玻璃管，兩邊都裝水，並故意讓左邊的水面先高一點。過了一會兒，兩邊水面卻慢慢接近同一高度。老師問大家，這兩件事有沒有一個共同的學習重點？小芸說，有，就是不能只看單一時刻，而要把不同時間的結果排在一起看，才能發現規律。月相如果只看一天，就看不出變化；U 形管如果只看剛開始，也不會知道最後水面會調整。老師稱讚她抓到重點，因為很多科學現象不是「瞬間看答案」，而是要靠連續觀察，才能找到真正的規律。`,
+ questions:[
+  {q:"月相牆最主要的功能是什麼？", options:["裝飾教室","記錄誰值日","持續觀察月亮變化","比較誰字漂亮"], answer:2, explain:"月相牆是用來做連續的月亮觀察紀錄。"},
+  {q:"U 形水管最後兩邊水面接近同高，屬於哪種原理？", options:["毛細現象","虹吸現象","連通管原理","影子變化"], answer:2, explain:"底部相通、裝同種液體時，液面會趨近相同高度。"},
+  {q:"小芸說兩件事共同的學習重點是什麼？", options:["都要看很久才會累","要把不同時間的結果排在一起看，才能發現規律","都只能在教室裡做","都需要很多顏色"], answer:1, explain:"她抓到連續觀察與比較的核心。"},
+  {q:"如果只看月亮一天，最可能出現什麼問題？", options:["會看不到月亮","不容易看出月相規律","月亮會停住","日期會錯"], answer:1, explain:"月相變化需要多天連續觀察才明顯。"},
+  {q:"這篇文章最想提醒學生哪件事？", options:["科學只看一次就夠","連續記錄與比較很重要","答案都在老師手上","水和月亮不能一起學"], answer:1, explain:"兩個例子都在說明連續觀察與比較的重要。"}
+ ]
+},
+{
+ title:"題組五｜校外觀察與錯誤修正",
+ passage:`班上準備到郊外做夜間觀察。老師先在教室裡提醒大家：不是只要晚上出門，就一定能看到很多星星和清楚的月亮，還要考慮天氣、地點、光線干擾等條件。小宇原本很有信心，覺得自己一定看得到很多東西，結果當天雲層偏厚，只看到一小段月亮。回到學校後，老師沒有說這次觀察失敗，而是帶大家討論：如果下次想看得更清楚，可以怎麼改進？同學們提出要先查天氣、找更空曠的地方、遠離太亮的路燈。接著老師又談到水的移動實驗，說有些組別做虹吸時也曾失敗，但不是原理錯了，而是管內有空氣、出水端不夠低等條件沒準備好。老師要大家明白，科學學習很少是一開始就完美，真正重要的是能不能從錯誤裡找出原因，再想辦法修正。`,
+ questions:[
+  {q:"老師提醒夜間觀察要考慮哪些因素？", options:["天氣、地點、光線干擾","早餐、午餐、點心","書包、鞋子、鉛筆盒","走路快慢"], answer:0, explain:"文中明確列出天氣、地點、光線干擾。"},
+  {q:"只看到一小段月亮，不代表什麼？", options:["觀察一定失敗","月亮消失了","還需要檢查觀察條件","自然課很難"], answer:2, explain:"老師強調不能直接判定失敗，要看條件與可改進處。"},
+  {q:"做虹吸實驗失敗時，最合理的做法是什麼？", options:["立刻放棄","檢查條件並修正","怪題目太難","全部重抄一次"], answer:1, explain:"文章強調從錯誤中找原因與修正。"},
+  {q:"這篇文章最重要的學習觀念是什麼？", options:["一次做不好就表示不會","科學學習重點在修正與改進","答案都要靠運氣","只要看別人做就好"], answer:1, explain:"全文都在說明錯誤修正的重要。"},
+  {q:"下列哪一句最符合本文？", options:["失敗代表原理錯了","有些觀察或實驗需要先準備好條件","晚上一定會看到很多星星","虹吸和天空完全無法一起學"], answer:1, explain:"不論夜間觀察還是虹吸實驗，都需要先準備好條件。"}
+ ]
+},
+{
+ title:"題組六｜整理筆記的力量",
+ passage:`期中考前，小恩把自然課前兩個單元重新整理成一張大海報。左邊畫天空單元：早上太陽位置較低、影子較長；中午太陽較高、影子較短；月亮則會改變位置與形狀。右邊畫水的移動單元：紙巾、棉線、毛巾吸水歸在毛細現象；魚缸換水歸在虹吸現象；U 形管和透明水平水管則畫在連通管原理下面。她沒有把所有句子全抄上去，而是用箭頭、圖示和少量關鍵字，把概念之間的關係標出來。弟弟看了以後竟然也能說出大概意思。小恩發現，當內容被整理成圖像之後，她答題時比較不會卡住，因為腦中比較容易想起「這題是在問哪一塊」。老師後來也提醒全班，考前複習不是把資料越抄越多，而是要把重點整理得越來越清楚。對很多孩子來說，看得懂、找得到、想得起來，比一口氣讀很多文字更重要。`,
+ questions:[
+  {q:"小恩整理海報時，哪一種做法最值得學習？", options:["把所有課文整段抄上去","用圖示、箭頭和關鍵字整理關係","只寫標題不寫內容","完全不做分類"], answer:1, explain:"圖示與關鍵字能幫助快速抓關係與回想內容。"},
+  {q:"魚缸換水應該整理到哪一類？", options:["毛細現象","月相變化","虹吸現象","連通管"], answer:2, explain:"魚缸用管子把水引到較低處，是虹吸現象。"},
+  {q:"U 形管和透明水平水管應歸在哪一類？", options:["連通管原理","影子變化","毛細現象","月相紀錄"], answer:0, explain:"兩者都與液面趨近相同高度的連通管原理相關。"},
+  {q:"老師說考前複習不是把資料越抄越多，而是要怎樣？", options:["越畫越漂亮","越整理越清楚","越背越快","越晚睡越好"], answer:1, explain:"考前整理的重點是清楚與可回想，不是單純字數。"},
+  {q:"這篇文章最適合哪類學習者參考？", options:["只喜歡聽不喜歡看的人","需要用圖像整理重點的人","完全不想做筆記的人","只會死背的人"], answer:1, explain:"本文強調視覺化整理，特別適合視覺優勢學習者。"}
+ ]
+}
+];
 
-let gameQuestions = [];
-let currentIndex = 0;
-let selectedIndex = null;
-let score = 0;
-let correctCount = 0;
-let wrongLog = [];
-let typeStats = {};
-let chestsToOpen = 0;
-let rewardPool = [];
+let currentSet = [];
+let userAnswers = {};
+let highlighterOn = false;
+let rewardBoxes = [];
+let remainingOpens = 0;
 let openedRewards = [];
 
-function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
-function pick(arr, n){ return shuffle(arr).slice(0,n); }
-
-function buildQuestionSet(){
-  gameQuestions = [
-    ...pick(banks.tf,2),
-    ...pick(banks.match,2),
-    ...pick(banks.fill,3),
-    ...pick(banks.reading,3)
-  ];
-  currentIndex = 0; selectedIndex = null; score=0; correctCount=0; wrongLog=[]; openedRewards=[];
-  typeStats = { '暖身':{asked:2,correct:0}, '配對':{asked:2,correct:0}, '應用':{asked:3,correct:0}, '閱讀':{asked:3,correct:0} };
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function startGame(){
-  buildQuestionSet();
-  document.getElementById('homeSection').classList.add('hidden');
-  document.getElementById('gameSection').style.display='block';
-  document.getElementById('resultSection').classList.add('hidden');
-  renderStepBar(); renderScoreTable(); renderWrongTable(); renderQuestion();
-}
+function goHome(){ showSection('homeSection'); }
 
-function renderStepBar(){
-  const steps=['暖身','配對','應用','閱讀'];
-  const html = steps.map((s,i)=>{
-    const q = currentIndex;
-    const active = (q<2 && i===0) || (q>=2 && q<4 && i===1) || (q>=4 && q<7 && i===2) || (q>=7 && i===3);
-    return `<div class="step ${active?'active':''}">${s}</div>`;
-  }).join('');
-  document.getElementById('stepBar').innerHTML = html;
-}
-
-function renderQuestion(){
-  selectedIndex = null;
-  const q = gameQuestions[currentIndex];
-  document.getElementById('modeTag').textContent = q.mode;
-  document.getElementById('unitTag').textContent = q.unit;
-  document.getElementById('supportTag').textContent = q.mode==='閱讀' ? '先看主角與關鍵句' : '先抓關鍵字作答';
-  document.getElementById('questionStem').textContent = q.stem;
-  document.getElementById('questionPassage').textContent = q.passage || '請從下列選項中選出最合適的答案。';
-  const opts = q.options.map((op,i)=>`<div class="option" onclick="selectOption(${i})" id="opt${i}"><div>${String.fromCharCode(65+i)}.</div><div>${op}</div></div>`).join('');
-  document.getElementById('optionsBox').innerHTML = opts;
-  const fb = document.getElementById('feedbackBox'); fb.className='feedback'; fb.style.display='none'; fb.textContent='';
-  document.getElementById('submitBtn').classList.remove('hidden');
-  document.getElementById('nextBtn').classList.add('hidden');
-  updateDashboard();
-}
-
-function selectOption(i){
-  selectedIndex = i;
-  [...document.querySelectorAll('.option')].forEach((el,idx)=> el.className = 'option' + (idx===i ? ' selected' : ''));
-}
-
-function showHint(){
-  const q = gameQuestions[currentIndex];
-  const fb = document.getElementById('feedbackBox');
-  fb.className='feedback good';
-  fb.style.display='block';
-  fb.textContent='提示：' + q.hint;
-}
-
-function submitAnswer(){
-  const q = gameQuestions[currentIndex];
-  if(selectedIndex===null){ showHint(); return; }
-  const opts = [...document.querySelectorAll('.option')];
-  opts[q.answer].classList.add('correct');
-  let fb = document.getElementById('feedbackBox');
-  if(selectedIndex===q.answer){
-    score += 10; correctCount += 1; typeStats[q.mode].correct += 1;
-    fb.className='feedback good';
-    fb.textContent='答對了！✅ ' + q.explain;
-  }else{
-    opts[selectedIndex].classList.add('wrong');
-    fb.className='feedback bad';
-    fb.textContent='這題先記住正解。💡 ' + q.explain;
-    wrongLog.push({n:currentIndex+1, stem:q.stem.slice(0,24)+'…', user:q.options[selectedIndex], ans:q.options[q.answer]});
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
   }
-  fb.style.display='block';
-  document.getElementById('submitBtn').classList.add('hidden');
-  document.getElementById('nextBtn').classList.remove('hidden');
-  updateDashboard(); renderWrongTable(); renderScoreTable();
+  return a;
 }
 
-function nextQuestion(){
-  currentIndex += 1;
-  if(currentIndex >= gameQuestions.length){ finishGame(); return; }
-  renderStepBar(); renderQuestion();
+function startQuiz(){
+  currentSet = shuffle(readingBank).slice(0,4);
+  userAnswers = {};
+  renderQuiz();
+  showSection('quizSection');
 }
 
-function updateDashboard(){
-  document.getElementById('liveScore').textContent = score;
-  document.getElementById('liveQ').textContent = `${Math.min(currentIndex+1,10)} / 10`;
-  document.getElementById('liveCorrect').textContent = correctCount;
-  document.getElementById('liveWrong').textContent = wrongLog.length;
+function renderQuiz(){
+  const box = document.getElementById('quizContainer');
+  box.innerHTML = '';
+  let qCounter = 1;
+  currentSet.forEach((set,pIndex)=>{
+    const div = document.createElement('div');
+    div.className = 'passage';
+    div.innerHTML = `
+      <h3>${set.title}</h3>
+      <div class="passage-text hl-area">${set.passage}</div>
+    `;
+    set.questions.forEach((item,qIndex)=>{
+      const qid = `p${pIndex}_q${qIndex}`;
+      const qDiv = document.createElement('div');
+      qDiv.className = 'q-block';
+      let optionsHtml = '';
+      item.options.forEach((opt,optIndex)=>{
+        optionsHtml += `<button class="option-btn" id="${qid}_o${optIndex}" onclick="selectOption('${qid}',${optIndex})">${String.fromCharCode(65+optIndex)}. ${opt}</button>`;
+      });
+      qDiv.innerHTML = `
+        <div class="q-title">第 ${qCounter} 題｜${item.q}</div>
+        <div class="options">${optionsHtml}</div>
+      `;
+      div.appendChild(qDiv);
+      qCounter++;
+    });
+    box.appendChild(div);
+  });
+  updateProgress();
+  enableHighlighterState();
 }
 
-function renderWrongTable(){
-  const body = document.getElementById('wrongTableBody');
-  if(!wrongLog.length){ body.innerHTML = '<tr><td colspan="4" class="center tiny">目前還沒有錯題，繼續保持。</td></tr>'; return; }
-  body.innerHTML = wrongLog.map(r=>`<tr><td class="center">${r.n}</td><td>${r.stem}</td><td>${r.user}</td><td>${r.ans}</td></tr>`).join('');
+function selectOption(qid, optIndex){
+  userAnswers[qid] = optIndex;
+  document.querySelectorAll(`[id^="${qid}_o"]`).forEach(b=>b.classList.remove('selected'));
+  const btn = document.getElementById(`${qid}_o${optIndex}`);
+  if(btn) btn.classList.add('selected');
+  updateProgress();
 }
 
-function renderScoreTable(){
-  const body = document.getElementById('scoreTableBody');
-  body.innerHTML = Object.keys(typeStats).map(k=>`<tr><td>${k}</td><td class="center">${typeStats[k].asked}</td><td class="center">${typeStats[k].correct}</td></tr>`).join('') +
-    `<tr><th>總分</th><th class="center">10 題</th><th class="center">${score}</th></tr>`;
+function updateProgress(){
+  const total = currentSet.reduce((n,s)=>n+s.questions.length,0);
+  const done = Object.keys(userAnswers).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('quizInfo').textContent = `本回合共 ${currentSet.length} 篇文章 × 每篇 5 題＝${total} 題。已作答 ${done} 題。`;
 }
 
-function finishGame(){
-  document.getElementById('gameSection').style.display='none';
-  document.getElementById('resultSection').classList.remove('hidden');
-  document.getElementById('finalScore').textContent = score;
-  let msg = '繼續加油，先把錯題表再看一次。';
-  chestsToOpen = 0;
-  if(score >= 100){ msg = '太棒了！滿分闖關，可開 3 個寶箱。'; chestsToOpen = 3; }
-  else if(score >= 90){ msg = '表現很穩！可開 2 個寶箱。'; chestsToOpen = 2; }
-  else if(score >= 80){ msg = '達標成功！可開 1 個寶箱。'; chestsToOpen = 1; }
-  document.getElementById('finalSummary').textContent = msg;
-  prepareRewards();
+function submitQuiz(){
+  const total = currentSet.reduce((n,s)=>n+s.questions.length,0);
+  if(Object.keys(userAnswers).length < total){
+    if(!confirm('還有題目沒作答，要先交卷嗎？')) return;
+  }
+  let correct = 0;
+  let wrongRows = [];
+  let qCounter = 1;
+
+  currentSet.forEach((set,pIndex)=>{
+    set.questions.forEach((item,qIndex)=>{
+      const qid = `p${pIndex}_q${qIndex}`;
+      const selected = userAnswers.hasOwnProperty(qid) ? userAnswers[qid] : null;
+
+      item.options.forEach((opt,optIndex)=>{
+        const btn = document.getElementById(`${qid}_o${optIndex}`);
+        if(!btn) return;
+        btn.classList.remove('correct','wrong');
+        if(optIndex === item.answer) btn.classList.add('correct');
+        if(selected === optIndex && optIndex !== item.answer) btn.classList.add('wrong');
+      });
+
+      if(selected === item.answer){
+        correct++;
+      }else{
+        wrongRows.push({
+          no:qCounter,
+          q:item.q,
+          your:selected===null ? '未作答' : String.fromCharCode(65+selected),
+          ans:String.fromCharCode(65+item.answer),
+          explain:item.explain
+        });
+      }
+      qCounter++;
+    });
+  });
+
+  const score = Math.round(correct / total * 100);
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('correctNum').textContent = correct;
+  document.getElementById('wrongNum').textContent = total - correct;
+
+  const opens = score === 100 ? 3 : score >= 90 ? 2 : score >= 80 ? 1 : 0;
+  document.getElementById('rewardNum').textContent = opens;
+
+  const tbody = document.getElementById('wrongTableBody');
+  tbody.innerHTML = wrongRows.length ? wrongRows.map(r => `
+    <tr>
+      <td>${r.no}</td>
+      <td>${r.q}</td>
+      <td>${r.your}</td>
+      <td>${r.ans}</td>
+      <td>${r.explain}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" class="center">太棒了，這回合沒有錯題。</td></tr>';
+
+  setupRewards(opens);
+  showSection('resultSection');
 }
 
-function prepareRewards(){
-  rewardPool = shuffle(['水晶玩具','水晶點數 1 點','水晶點數 1 點','水晶點數 1 點','水晶點數 1 點']);
+function setupRewards(opens){
+  rewardBoxes = shuffle(['水晶玩具','水晶點數 1 點','水晶點數 1 點','水晶點數 1 點','水晶點數 1 點']);
+  remainingOpens = opens;
+  openedRewards = [];
   const grid = document.getElementById('rewardGrid');
-  document.getElementById('rewardResult').classList.add('hidden');
-  grid.innerHTML = rewardPool.map((r,i)=>`<div class="chest ${chestsToOpen===0?'locked':''}" id="chest${i}" onclick="openChest(${i})">🎁<div style="margin-top:8px">寶箱 ${i+1}</div><div class="tiny">${chestsToOpen>0?'可點擊':'未達開箱分數'}</div></div>`).join('');
+  const result = document.getElementById('rewardResult');
+  result.innerHTML = opens>0 ? `你可以開 <b>${opens}</b> 個寶箱。` : '這次先休息一下，回去看重點整理，再挑戰一次。';
+  grid.innerHTML = '';
+  rewardBoxes.forEach((r,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'chest';
+    btn.id = `chest_${i}`;
+    btn.innerHTML = `寶箱 ${i+1}<br>點我開啟`;
+    btn.onclick = ()=>openChest(i);
+    grid.appendChild(btn);
+  });
 }
 
 function openChest(i){
-  if(chestsToOpen<=0) return;
-  const box = document.getElementById('chest'+i);
-  if(box.classList.contains('opened')) return;
-  box.classList.add('opened');
-  const reward = rewardPool[i];
-  box.innerHTML = `✨<div style="margin-top:8px">${reward}</div>`;
-  openedRewards.push(reward);
-  chestsToOpen -= 1;
-  const rr = document.getElementById('rewardResult');
-  rr.classList.remove('hidden');
-  rr.textContent = '已獲得：' + openedRewards.join('、') + (chestsToOpen>0 ? `｜還可再開 ${chestsToOpen} 個寶箱` : '｜本回合開箱完成');
-  if(chestsToOpen===0){
-    [...document.querySelectorAll('.chest:not(.opened)')].forEach(el=>el.classList.add('locked'));
-  }
+  if(remainingOpens <= 0) return;
+  const btn = document.getElementById(`chest_${i}`);
+  if(btn.classList.contains('opened')) return;
+  btn.classList.add('opened');
+  btn.innerHTML = `寶箱 ${i+1}<br>${rewardBoxes[i]}`;
+  openedRewards.push(rewardBoxes[i]);
+  remainingOpens--;
+  const result = document.getElementById('rewardResult');
+  result.innerHTML = `已獲得：<b>${openedRewards.join('、')}</b><br>還可再開 <b>${remainingOpens}</b> 個寶箱。`;
 }
 
-function resetGame(){
-  document.getElementById('homeSection').classList.remove('hidden');
-  document.getElementById('resultSection').classList.add('hidden');
-  document.getElementById('gameSection').style.display='none';
-  renderWrongTable();
+function toggleHighlighter(){
+  highlighterOn = !highlighterOn;
+  document.getElementById('hlState').textContent = highlighterOn ? '開' : '關';
+  enableHighlighterState();
 }
+
+function enableHighlighterState(){
+  document.querySelectorAll('.hl-area,.passage-text').forEach(el=>{
+    if(highlighterOn) el.classList.add('hl-on');
+    else el.classList.remove('hl-on');
+  });
+}
+
+function clearHighlights(){
+  document.querySelectorAll('mark.user-hl').forEach(mark=>{
+    const parent = mark.parentNode;
+    parent.replaceChild(document.createTextNode(mark.textContent), mark);
+    parent.normalize();
+  });
+}
+
+document.addEventListener('mouseup', ()=>{
+  if(!highlighterOn) return;
+  const sel = window.getSelection();
+  if(!sel || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  const container = range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+  if(!container.closest('.hl-area') && !container.closest('.passage-text')) return;
+  try{
+    const mark = document.createElement('mark');
+    mark.className = 'user-hl';
+    mark.style.background = 'var(--hl)';
+    range.surroundContents(mark);
+    sel.removeAllRanges();
+  }catch(e){
+    sel.removeAllRanges();
+  }
+});
 </script>
 </body>
 </html>
