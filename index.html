@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>自然雙單元闖關｜天空與水的移動</title>
+<style>
+  :root{
+    --bg:#eef6ff; --card:#ffffff; --ink:#20304a; --muted:#5e718c; --accent:#4f8cff; --accent2:#7ad3b0;
+    --good:#2f9e44; --bad:#d9485f; --gold:#f2c94c; --lav:#ede7ff; --peach:#fff1e6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;background:linear-gradient(180deg,#eef6ff,#f7fbff);color:var(--ink)}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px}
+  .hero{background:linear-gradient(135deg,#6fa8ff,#8ed8ff);color:#fff;border-radius:28px;padding:24px;box-shadow:0 12px 28px rgba(60,110,180,.18)}
+  h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px)}
+  .sub{font-size:16px;line-height:1.7;opacity:.96}
+  .pillrow,.stepbar,.scoregrid,.cards,.modegrid,.rewardgrid{display:grid;gap:12px}
+  .pillrow{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:16px}
+  .pill{background:rgba(255,255,255,.18);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.28);padding:12px 14px;border-radius:18px;font-weight:700}
+  .section{margin-top:18px;background:var(--card);border-radius:24px;padding:18px;box-shadow:0 10px 24px rgba(40,60,90,.08)}
+  .section h2{margin:0 0 12px;font-size:24px}
+  .map{display:grid;grid-template-columns:1.2fr .9fr 1.3fr;gap:14px;align-items:center}
+  .bubble{border-radius:24px;padding:16px;min-height:120px}
+  .bubble.big{background:#ecf4ff;border:2px solid #cfe2ff}
+  .bubble.mid{background:#f4f0ff;border:2px solid #ddd2ff;text-align:center;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center}
+  .node{background:#fff;border:2px solid #d6e6ff;border-radius:18px;padding:12px 14px;margin:8px 0;font-weight:700}
+  .node small{display:block;color:var(--muted);font-weight:600;line-height:1.5;margin-top:4px}
+  .startbox{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+  .btn{border:none;border-radius:18px;padding:14px 18px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(79,140,255,.22);background:var(--accent);color:#fff}
+  .btn.secondary{background:#fff;color:var(--accent);border:2px solid #cfe0ff;box-shadow:none}
+  .btn.good{background:var(--good)} .btn.warn{background:#ff9f43}.btn.bad{background:var(--bad)}
+  .stepbar{grid-template-columns:repeat(4,1fr)}
+  .step{background:#f5f8ff;border:2px solid #dce7ff;border-radius:16px;padding:12px;text-align:center;font-weight:800}
+  .step.active{background:#dceaff;border-color:#8db6ff}
+  .scoregrid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:10px}
+  .scorecard{background:#f8fbff;border:2px solid #e3eefc;border-radius:18px;padding:12px;text-align:center}
+  .scorecard .v{font-size:28px;font-weight:900;margin-top:4px}
+  .game{display:none}
+  .questionCard{background:#fff;border:2px solid #dbe8ff;border-radius:24px;padding:20px}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .tag{padding:8px 12px;background:#f1f6ff;border-radius:999px;font-weight:800;color:#35507a}
+  .stem{font-size:20px;font-weight:800;line-height:1.7;margin:10px 0 14px}
+  .passage{background:#fcfdff;border:2px dashed #d9e8ff;border-radius:18px;padding:16px;line-height:1.9;font-size:17px;max-height:260px;overflow:auto}
+  .options{display:grid;gap:10px;margin-top:16px}
+  .option{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px solid #dfe9fb;border-radius:18px;background:#fff;cursor:pointer;font-weight:700}
+  .option:hover{background:#f7fbff}
+  .option.selected{border-color:#8db6ff;background:#eef5ff}
+  .option.correct{border-color:#8bd6a1;background:#ecfbf1}
+  .option.wrong{border-color:#f2a6b2;background:#fff1f4}
+  .feedback{margin-top:14px;padding:14px;border-radius:16px;font-weight:800;display:none;line-height:1.7}
+  .feedback.good{background:#ecfbf1;color:#246b36;display:block}
+  .feedback.bad{background:#fff1f4;color:#a61e34;display:block}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .cards{grid-template-columns:1.2fr .8fr;gap:16px}
+  .panel{background:#fcfdff;border:2px solid #e6eefb;border-radius:20px;padding:14px}
+  table{width:100%;border-collapse:collapse;margin-top:8px;background:#fff;border-radius:14px;overflow:hidden}
+  th,td{border-bottom:1px solid #edf2fa;padding:10px 12px;text-align:left;vertical-align:middle;font-size:14px}
+  th{background:#f6f9ff}
+  .center{text-align:center}
+  .bigScore{font-size:56px;font-weight:900;color:#355d9b}
+  .rewardgrid{grid-template-columns:repeat(5,1fr);margin-top:12px}
+  .chest{background:linear-gradient(180deg,#fff8d8,#ffe59b);border:2px solid #f0c85e;border-radius:20px;padding:16px;text-align:center;cursor:pointer;font-size:15px;font-weight:900;min-height:120px;display:flex;flex-direction:column;justify-content:center}
+  .chest.locked{opacity:.45;cursor:not-allowed}
+  .chest.opened{background:linear-gradient(180deg,#effff4,#cbf5d8);border-color:#72cf8f}
+  .tiny{font-size:13px;color:var(--muted);line-height:1.7}
+  .hidden{display:none}
+  .modegrid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .mode{background:#f8fbff;border:2px solid #dce7ff;border-radius:20px;padding:14px}
+  .mode h3{margin:0 0 6px}
+  .footer{margin:18px 0 30px;color:#6b7f9c;font-size:13px;text-align:center}
+  @media (max-width: 900px){
+    .map,.cards{grid-template-columns:1fr}
+    .startbox{grid-template-columns:1fr}
+    .rewardgrid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>🌙💧 自然雙單元闖關</h1>
+    <div class="sub">把「白天和夜晚的天空」＋「水的移動」結合成短回合、圖像化、立即回饋的練習。適合視覺優勢、非語文推理佳、聽覺工作記憶較弱、易分心但理解力不差的孩子。</div>
+    <div class="pillrow">
+      <div class="pill">👀 一次只做 1 題，畫面乾淨</div>
+      <div class="pill">🧭 步驟固定：看圖卡 → 選答案 → 立即回饋</div>
+      <div class="pill">✨ 可闖關、低挫折，不扣命</div>
+      <div class="pill">🎁 滿 80 / 90 / 100 分開寶箱</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>一張圖先看懂兩個單元</h2>
+    <div class="map">
+      <div class="bubble big">
+        <div class="node">☀️ 白天和夜晚的天空<small>太陽位置、影子方向與長短、月亮位置、月相變化</small></div>
+        <div class="node">🔎 觀察重點<small>時間、方位、高低、連續紀錄</small></div>
+      </div>
+      <div class="bubble mid">觀察 → 記錄 → 比較 → 推理</div>
+      <div class="bubble big">
+        <div class="node">💧 水的移動<small>毛細、虹吸、連通管、生活應用</small></div>
+        <div class="node">🧠 作答線索<small>看條件、找變因、配對原理、連結生活</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="homeSection">
+    <div class="startbox">
+      <div>
+        <h2>開始方式</h2>
+        <div class="modegrid">
+          <div class="mode"><h3>第 1 關 暖身</h3><div class="tiny">真假題 2 題｜快速進入狀態</div></div>
+          <div class="mode"><h3>第 2 關 配對</h3><div class="tiny">配對/分類題 2 題｜抓概念差異</div></div>
+          <div class="mode"><h3>第 3 關 應用</h3><div class="tiny">填空/情境題 3 題｜生活連結</div></div>
+          <div class="mode"><h3>第 4 關 閱讀</h3><div class="tiny">閱讀素養題 3 題｜短文推理</div></div>
+        </div>
+        <div class="tiny" style="margin-top:10px">每回合共 10 題，每題 10 分，滿分 100。題目會從題庫隨機抽出，不重複。</div>
+      </div>
+      <div>
+        <button class="btn" onclick="startGame()">開始闖關</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="game" id="gameSection">
+    <div class="section">
+      <div class="stepbar" id="stepBar"></div>
+      <div class="scoregrid">
+        <div class="scorecard"><div>目前分數</div><div class="v" id="liveScore">0</div></div>
+        <div class="scorecard"><div>目前題號</div><div class="v" id="liveQ">1 / 10</div></div>
+        <div class="scorecard"><div>答對題數</div><div class="v" id="liveCorrect">0</div></div>
+        <div class="scorecard"><div>錯題數</div><div class="v" id="liveWrong">0</div></div>
+      </div>
+    </div>
+
+    <div class="questionCard">
+      <div class="meta">
+        <div class="tag" id="modeTag">暖身</div>
+        <div class="tag" id="unitTag">單元整合</div>
+        <div class="tag" id="supportTag">看關鍵字作答</div>
+      </div>
+      <div class="stem" id="questionStem"></div>
+      <div class="passage" id="questionPassage"></div>
+      <div class="options" id="optionsBox"></div>
+      <div class="feedback" id="feedbackBox"></div>
+      <div class="actions">
+        <button class="btn secondary" onclick="showHint()">提示</button>
+        <button class="btn" id="submitBtn" onclick="submitAnswer()">送出答案</button>
+        <button class="btn good hidden" id="nextBtn" onclick="nextQuestion()">下一題</button>
+      </div>
+    </div>
+
+    <div class="section cards">
+      <div class="panel">
+        <h2>錯題表</h2>
+        <table>
+          <thead><tr><th class="center" style="width:68px">題號</th><th>題目摘要</th><th style="width:100px">作答</th><th style="width:110px">正解</th></tr></thead>
+          <tbody id="wrongTableBody"><tr><td colspan="4" class="center tiny">目前還沒有錯題，繼續保持。</td></tr></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h2>分數表</h2>
+        <table>
+          <thead><tr><th>類型</th><th class="center">出題</th><th class="center">答對</th></tr></thead>
+          <tbody id="scoreTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section hidden" id="resultSection">
+    <h2>闖關結果</h2>
+    <div class="cards">
+      <div class="panel center">
+        <div class="bigScore" id="finalScore">100</div>
+        <div id="finalSummary" style="font-weight:800;font-size:18px"></div>
+        <div class="tiny" style="margin-top:10px">80 分可開 1 個寶箱，90 分可開 2 個寶箱，100 分可開 3 個寶箱。</div>
+        <div class="actions" style="justify-content:center;margin-top:16px">
+          <button class="btn" onclick="resetGame()">再玩一次</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>獎勵寶箱</h2>
+        <div class="tiny">每回合會隨機排列 5 個寶箱，其中 1 個是「水晶玩具」，其他 4 個是「水晶點數 1 點」。</div>
+        <div class="rewardgrid" id="rewardGrid"></div>
+        <div id="rewardResult" class="feedback good hidden" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">本頁為單檔 index.html，可直接上傳到 GitHub Pages 使用。</div>
+</div>
+
+<script>
+const banks = {
+  tf: [
+    {mode:'暖身', unit:'天空', stem:'判斷正誤：太陽一天中的位置會改變，所以影子的方向和長短也可能改變。', options:['正確','錯誤'], answer:0, hint:'想想早上、中午、下午影子有沒有一樣。', explain:'這是正確的。太陽位置改變，影子方向與長短也會跟著變。'},
+    {mode:'暖身', unit:'天空', stem:'判斷正誤：月亮每天看起來都完全一樣。', options:['正確','錯誤'], answer:1, hint:'回想月相：彎月、半月、滿月。', explain:'這是錯誤的。月亮外形會變，叫做月相變化。'},
+    {mode:'暖身', unit:'水的移動', stem:'判斷正誤：毛巾吸水和毛細現象有關。', options:['正確','錯誤'], answer:0, hint:'看材料：布、紙、棉線都常見。', explain:'正確。毛巾吸水屬於水沿細小空隙移動。'},
+    {mode:'暖身', unit:'水的移動', stem:'判斷正誤：連通管中，同一種液體最後液面通常會趨近一樣高。', options:['正確','錯誤'], answer:0, hint:'關鍵字：底部相通、同種液體。', explain:'正確。這就是連通管的核心特性。'},
+    {mode:'暖身', unit:'單元整合', stem:'判斷正誤：觀察自然現象時，只看一次就一定能找到規律。', options:['正確','錯誤'], answer:1, hint:'想想月相或影子，需要連續觀察嗎？', explain:'錯誤。很多規律需要在不同時間持續觀察才能發現。'},
+    {mode:'暖身', unit:'水的移動', stem:'判斷正誤：魚缸把水用管子引到低處，屬於虹吸現象。', options:['正確','錯誤'], answer:0, hint:'關鍵線索是「管子」和「高到低」。', explain:'正確。這是虹吸現象的典型例子。'}
+  ],
+  match: [
+    {mode:'配對', unit:'水的移動', stem:'哪一個例子最適合配對到「毛細現象」？', options:['魚缸排水','毛巾吸汗','透明水平水管','影子變短'], answer:1, hint:'材料常是紙、布、棉線。', explain:'毛巾吸汗屬於毛細現象。'},
+    {mode:'配對', unit:'水的移動', stem:'哪一個例子最適合配對到「虹吸現象」？', options:['紙巾吸果汁','白花吸色水','用管子把水引到低桶','月亮外形改變'], answer:2, hint:'關鍵是管子與高低差。', explain:'用管子把高處的水引到低處是虹吸。'},
+    {mode:'配對', unit:'水的移動', stem:'哪一個例子最適合配對到「連通管原理」？', options:['U形水管兩邊液面趨近一樣高','抹布吸水','魚缸換水','白天看太陽'], answer:0, hint:'關鍵是底部相通。', explain:'U 形水管是連通管原理。'},
+    {mode:'配對', unit:'天空', stem:'哪一個關鍵字最適合配對到「描述天空位置」？', options:['方位和高低','聞味道','重量和速度','聲音大小'], answer:0, hint:'回答位置常用東西南北與高低。', explain:'描述位置要用方位和高低。'},
+    {mode:'配對', unit:'單元整合', stem:'哪一個做法最符合「觀察 → 記錄 → 比較 → 推理」？', options:['直接猜答案','先記錄不同時間，再找規律','只抄同學的答案','看一次就結束'], answer:1, hint:'科學學習重視證據。', explain:'先記錄再比較，最符合科學探究步驟。'},
+    {mode:'配對', unit:'天空', stem:'哪一個現象最適合配對到「月相變化」？', options:['彎月、半月、滿月','影子縮短','魚缸排水','抹布吸水'], answer:0, hint:'想月亮外形。', explain:'彎月、半月、滿月屬於月相變化。'}
+  ],
+  fill: [
+    {mode:'應用', unit:'天空', stem:'填空概念：中午時太陽位置較____，所以影子通常較____。', options:['低；長','高；短','西；亮','東；粗'], answer:1, hint:'回想操場影子觀察。', explain:'中午太陽較高，所以影子較短。'},
+    {mode:'應用', unit:'天空', stem:'傍晚觀察月亮，想讓紀錄更清楚，最值得先寫下的是____。', options:['零食口味','日期、時間、方位','鞋子顏色','跑步速度'], answer:1, hint:'觀察紀錄要能重現情境。', explain:'日期、時間、方位能幫助理解月亮位置與變化。'},
+    {mode:'應用', unit:'水的移動', stem:'如果想讓虹吸更容易成功，最重要的條件之一是____。', options:['管內先有水、出水端較低','容器顏色一樣','天氣晴朗','桌面夠大'], answer:0, hint:'看「高到低」與「管內有沒有空氣」。', explain:'虹吸常需要管內先有水，且出水端低於原容器。'},
+    {mode:'應用', unit:'水的移動', stem:'白色花插進有色水後花瓣變色，最能說明植物體內有____。', options:['影子','細小通道運水','小燈泡','磁鐵'], answer:1, hint:'不是花在變魔術。', explain:'花瓣變色表示有色水經細小通道被運送到花瓣。'},
+    {mode:'應用', unit:'單元整合', stem:'想找出規律，最好的方法是____。', options:['只看一次就猜','不同時間觀察並記錄','直接背答案','挑最簡單的題'], answer:1, hint:'規律通常不是憑直覺。', explain:'不同時間觀察並記錄，最容易發現規律。'},
+    {mode:'應用', unit:'水的移動', stem:'透明 U 形水管的兩端液面最後差不多一樣高，這主要是因為它們____。', options:['顏色一樣','底部相通','放在桌上','由老師拿著'], answer:1, hint:'想核心條件。', explain:'連通管的關鍵是底部相通。'}
+  ],
+  reading: [
+    {mode:'閱讀', unit:'天空', stem:'讀完短文後，選出最合理的答案。',
+      passage:'星期四早上，四年級的同學到操場觀察天空。早上八點時，太陽在東方偏南，影子又長又斜；中午十二點，太陽位置變高，影子變得很短；下午四點再看，太陽偏向西方，影子又拉長，而且方向和早上不同。老師請大家不要急著背答案，而是把三次觀察都畫在表格裡，再比較一天中的變化。小杰本來只記得「早上影子長、中午影子短」，後來才知道重點不是死背，而是要看出影子為什麼改變。',
+      options:['因為風變大，影子才變短','太陽位置改變，影子跟著改變','影子長短和太陽無關','中午影子最長'], answer:1, hint:'先抓主角：太陽位置。', explain:'這段短文的核心是太陽位置改變，影子方向與長短也跟著改變。'},
+    {mode:'閱讀', unit:'天空', stem:'讀完短文後，選出最合理的答案。',
+      passage:'小妤連續一週在傍晚觀察月亮。她發現月亮有時像彎彎的小船，有時像半圓，有時又比較接近圓形，而且出現的位置也不是每天都一樣。老師看了她的紀錄後說，這樣的筆記很有價值，因為它不只是看見月亮，而是把看到的現象留下來，才能找到變化的規律。小妤也因此修正了自己原本的想法：月亮不一定只在深夜才會看見，而且每天看起來也不完全一樣。',
+      options:['月亮每天都一樣','月亮只在深夜出現','月亮位置和外形都可能變化','只要看一次就能知道月相規律'], answer:2, hint:'注意「有時…有時…」這種關鍵字。', explain:'短文明確說明月亮位置和外形都可能改變。'},
+    {mode:'閱讀', unit:'水的移動', stem:'讀完短文後，選出最合理的答案。',
+      passage:'老師把紙巾的一角放進有色水裡，不久後，顏色沿著紙巾慢慢往上移動。接著老師又請同學用毛巾擦乾桌面上的水，大家發現毛巾也能很快把水吸走。老師說，這些現象都有一個共同點：水會沿著細小的空隙移動。平常看到衛生紙吸果汁、布條吸水、棉線變濕，其實都和同一類原理有關。',
+      options:['這是在說月相變化','這是在說毛細現象','這是在說連通管','這是在說影子變短'], answer:1, hint:'材料關鍵字：紙、布、棉線。', explain:'這些例子都屬於毛細現象。'},
+    {mode:'閱讀', unit:'水的移動', stem:'讀完短文後，選出最合理的答案。',
+      passage:'阿哲幫爸爸清理魚缸時，看到爸爸先把透明軟管裝滿水，再把一端放進魚缸，另一端垂到比較低的水桶。過一會兒，魚缸裡的水就慢慢流到桶子裡。阿哲第一次自己做時失敗了，後來才發現管內留了空氣，而且出水端不夠低。調整後，水才順利流動。',
+      options:['只要有管子就一定成功','這種現象和高低差無關','虹吸需要符合條件才容易成功','魚缸排水屬於連通管'], answer:2, hint:'看失敗原因。', explain:'虹吸要注意條件，例如管內先有水、出水端較低。'},
+    {mode:'閱讀', unit:'水的移動', stem:'讀完短文後，選出最合理的答案。',
+      passage:'老師拿出一個透明 U 形玻璃管，兩邊都裝了水。剛開始時左邊水面比較高，右邊比較低，可是過了一會兒，兩邊水面慢慢變成差不多一樣高。老師提醒大家，重點不是玻璃管有沒有彎，而是兩邊底部相通，裡面又裝的是同一種液體。有人想到工地上的透明水平水管，原來也是應用類似原理。',
+      options:['毛細現象','虹吸現象','連通管原理','月相紀錄'], answer:2, hint:'底部相通是關鍵。', explain:'這是在說連通管原理。'},
+    {mode:'閱讀', unit:'單元整合', stem:'讀完短文後，選出最合理的答案。',
+      passage:'老師說，不論是觀察太陽影子、記錄月相，還是比較紙巾吸水和魚缸排水，都不能只背名詞。真正重要的是先看條件，再做記錄，接著比較不同情況，最後才推理原因。小安發現，當自己按照這個順序做題時，比較不會慌，也比較不容易因為怕錯就停住不動。',
+      options:['自然課只要背名詞','先看條件、記錄、比較、推理比較能找到答案','做題要越快越好','怕錯時最好直接放棄'], answer:1, hint:'抓主句。', explain:'短文強調觀察、記錄、比較、推理的作答流程。'}
+  ]
+};
+
+let gameQuestions = [];
+let currentIndex = 0;
+let selectedIndex = null;
+let score = 0;
+let correctCount = 0;
+let wrongLog = [];
+let typeStats = {};
+let chestsToOpen = 0;
+let rewardPool = [];
+let openedRewards = [];
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+function pick(arr, n){ return shuffle(arr).slice(0,n); }
+
+function buildQuestionSet(){
+  gameQuestions = [
+    ...pick(banks.tf,2),
+    ...pick(banks.match,2),
+    ...pick(banks.fill,3),
+    ...pick(banks.reading,3)
+  ];
+  currentIndex = 0; selectedIndex = null; score=0; correctCount=0; wrongLog=[]; openedRewards=[];
+  typeStats = { '暖身':{asked:2,correct:0}, '配對':{asked:2,correct:0}, '應用':{asked:3,correct:0}, '閱讀':{asked:3,correct:0} };
+}
+
+function startGame(){
+  buildQuestionSet();
+  document.getElementById('homeSection').classList.add('hidden');
+  document.getElementById('gameSection').style.display='block';
+  document.getElementById('resultSection').classList.add('hidden');
+  renderStepBar(); renderScoreTable(); renderWrongTable(); renderQuestion();
+}
+
+function renderStepBar(){
+  const steps=['暖身','配對','應用','閱讀'];
+  const html = steps.map((s,i)=>{
+    const q = currentIndex;
+    const active = (q<2 && i===0) || (q>=2 && q<4 && i===1) || (q>=4 && q<7 && i===2) || (q>=7 && i===3);
+    return `<div class="step ${active?'active':''}">${s}</div>`;
+  }).join('');
+  document.getElementById('stepBar').innerHTML = html;
+}
+
+function renderQuestion(){
+  selectedIndex = null;
+  const q = gameQuestions[currentIndex];
+  document.getElementById('modeTag').textContent = q.mode;
+  document.getElementById('unitTag').textContent = q.unit;
+  document.getElementById('supportTag').textContent = q.mode==='閱讀' ? '先看主角與關鍵句' : '先抓關鍵字作答';
+  document.getElementById('questionStem').textContent = q.stem;
+  document.getElementById('questionPassage').textContent = q.passage || '請從下列選項中選出最合適的答案。';
+  const opts = q.options.map((op,i)=>`<div class="option" onclick="selectOption(${i})" id="opt${i}"><div>${String.fromCharCode(65+i)}.</div><div>${op}</div></div>`).join('');
+  document.getElementById('optionsBox').innerHTML = opts;
+  const fb = document.getElementById('feedbackBox'); fb.className='feedback'; fb.style.display='none'; fb.textContent='';
+  document.getElementById('submitBtn').classList.remove('hidden');
+  document.getElementById('nextBtn').classList.add('hidden');
+  updateDashboard();
+}
+
+function selectOption(i){
+  selectedIndex = i;
+  [...document.querySelectorAll('.option')].forEach((el,idx)=> el.className = 'option' + (idx===i ? ' selected' : ''));
+}
+
+function showHint(){
+  const q = gameQuestions[currentIndex];
+  const fb = document.getElementById('feedbackBox');
+  fb.className='feedback good';
+  fb.style.display='block';
+  fb.textContent='提示：' + q.hint;
+}
+
+function submitAnswer(){
+  const q = gameQuestions[currentIndex];
+  if(selectedIndex===null){ showHint(); return; }
+  const opts = [...document.querySelectorAll('.option')];
+  opts[q.answer].classList.add('correct');
+  let fb = document.getElementById('feedbackBox');
+  if(selectedIndex===q.answer){
+    score += 10; correctCount += 1; typeStats[q.mode].correct += 1;
+    fb.className='feedback good';
+    fb.textContent='答對了！✅ ' + q.explain;
+  }else{
+    opts[selectedIndex].classList.add('wrong');
+    fb.className='feedback bad';
+    fb.textContent='這題先記住正解。💡 ' + q.explain;
+    wrongLog.push({n:currentIndex+1, stem:q.stem.slice(0,24)+'…', user:q.options[selectedIndex], ans:q.options[q.answer]});
+  }
+  fb.style.display='block';
+  document.getElementById('submitBtn').classList.add('hidden');
+  document.getElementById('nextBtn').classList.remove('hidden');
+  updateDashboard(); renderWrongTable(); renderScoreTable();
+}
+
+function nextQuestion(){
+  currentIndex += 1;
+  if(currentIndex >= gameQuestions.length){ finishGame(); return; }
+  renderStepBar(); renderQuestion();
+}
+
+function updateDashboard(){
+  document.getElementById('liveScore').textContent = score;
+  document.getElementById('liveQ').textContent = `${Math.min(currentIndex+1,10)} / 10`;
+  document.getElementById('liveCorrect').textContent = correctCount;
+  document.getElementById('liveWrong').textContent = wrongLog.length;
+}
+
+function renderWrongTable(){
+  const body = document.getElementById('wrongTableBody');
+  if(!wrongLog.length){ body.innerHTML = '<tr><td colspan="4" class="center tiny">目前還沒有錯題，繼續保持。</td></tr>'; return; }
+  body.innerHTML = wrongLog.map(r=>`<tr><td class="center">${r.n}</td><td>${r.stem}</td><td>${r.user}</td><td>${r.ans}</td></tr>`).join('');
+}
+
+function renderScoreTable(){
+  const body = document.getElementById('scoreTableBody');
+  body.innerHTML = Object.keys(typeStats).map(k=>`<tr><td>${k}</td><td class="center">${typeStats[k].asked}</td><td class="center">${typeStats[k].correct}</td></tr>`).join('') +
+    `<tr><th>總分</th><th class="center">10 題</th><th class="center">${score}</th></tr>`;
+}
+
+function finishGame(){
+  document.getElementById('gameSection').style.display='none';
+  document.getElementById('resultSection').classList.remove('hidden');
+  document.getElementById('finalScore').textContent = score;
+  let msg = '繼續加油，先把錯題表再看一次。';
+  chestsToOpen = 0;
+  if(score >= 100){ msg = '太棒了！滿分闖關，可開 3 個寶箱。'; chestsToOpen = 3; }
+  else if(score >= 90){ msg = '表現很穩！可開 2 個寶箱。'; chestsToOpen = 2; }
+  else if(score >= 80){ msg = '達標成功！可開 1 個寶箱。'; chestsToOpen = 1; }
+  document.getElementById('finalSummary').textContent = msg;
+  prepareRewards();
+}
+
+function prepareRewards(){
+  rewardPool = shuffle(['水晶玩具','水晶點數 1 點','水晶點數 1 點','水晶點數 1 點','水晶點數 1 點']);
+  const grid = document.getElementById('rewardGrid');
+  document.getElementById('rewardResult').classList.add('hidden');
+  grid.innerHTML = rewardPool.map((r,i)=>`<div class="chest ${chestsToOpen===0?'locked':''}" id="chest${i}" onclick="openChest(${i})">🎁<div style="margin-top:8px">寶箱 ${i+1}</div><div class="tiny">${chestsToOpen>0?'可點擊':'未達開箱分數'}</div></div>`).join('');
+}
+
+function openChest(i){
+  if(chestsToOpen<=0) return;
+  const box = document.getElementById('chest'+i);
+  if(box.classList.contains('opened')) return;
+  box.classList.add('opened');
+  const reward = rewardPool[i];
+  box.innerHTML = `✨<div style="margin-top:8px">${reward}</div>`;
+  openedRewards.push(reward);
+  chestsToOpen -= 1;
+  const rr = document.getElementById('rewardResult');
+  rr.classList.remove('hidden');
+  rr.textContent = '已獲得：' + openedRewards.join('、') + (chestsToOpen>0 ? `｜還可再開 ${chestsToOpen} 個寶箱` : '｜本回合開箱完成');
+  if(chestsToOpen===0){
+    [...document.querySelectorAll('.chest:not(.opened)')].forEach(el=>el.classList.add('locked'));
+  }
+}
+
+function resetGame(){
+  document.getElementById('homeSection').classList.remove('hidden');
+  document.getElementById('resultSection').classList.add('hidden');
+  document.getElementById('gameSection').style.display='none';
+  renderWrongTable();
+}
+</script>
+</body>
+</html>
